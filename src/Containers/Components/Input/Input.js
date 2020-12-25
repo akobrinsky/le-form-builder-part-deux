@@ -12,13 +12,11 @@ const Input = (props) => {
   if (!props.valid && props.touched) {
     inputClasses.push('is-danger');
     if (props.errors) {
-      errorMessage = Object.entries(props.errors).map(([key, val], idx) => {
-        return (
-          <p key={`${key}${idx}`} className="help is-danger">
-            {val}
-          </p>
-        );
-      });
+      errorMessage = Object.entries(props.errors).map(([key, val], idx) => (
+        <p key={`${key}${idx}`} className="help is-danger">
+          {val}
+        </p>
+      ));
     }
   }
 
@@ -92,9 +90,9 @@ const Input = (props) => {
   }
   return (
     <div className="field">
-      {props.fieldType === 'select' ? (
+      {props.fieldType === 'select' && (
         <label className="label">{props.label}</label>
-      ) : null}
+      )}
       <div className="control">{inputField}</div>
       {errorMessage}
     </div>

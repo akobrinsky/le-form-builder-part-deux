@@ -1,63 +1,79 @@
 import React from 'react';
 import Radio from '../Radio/Radio';
+import InputField from '../InputField/InputField';
+import CheckBox from '../Checkbox/Checkbox';
+import Select from '../Select/Select';
+
 const Input = (props) => {
   let inputField = null;
+  let errorMessage = null;
+  const inputClasses = [];
+
+  if (!props.valid && props.touched) {
+    inputClasses.push('is-danger');
+    if (props.errors) {
+      errorMessage = Object.entries(props.errors).map(([key, val], idx) => {
+        return (
+          <p key={`${key}${idx}`} className="help is-danger">
+            {val}
+          </p>
+        );
+      });
+    }
+  }
+
+  if (props.valid && props.touched) {
+    inputClasses.push('is-success');
+  }
+
   switch (props.fieldType) {
     case 'input':
       inputField = (
-        <input
+        <InputField
+          inputClasses={inputClasses}
           name={props.name}
-          {...props.config}
+          config={props.config}
           value={props.value}
-          onChange={(e) => props.changed(e)}
+          changed={props.changed}
+          label={props.label}
+          fieldType={props.fieldType}
         />
       );
       break;
     case 'textarea':
       inputField = (
-        <textarea
-          {...props.config}
+        <InputField
+          inputClasses={inputClasses}
           name={props.name}
+          config={props.config}
           value={props.value}
-          onChange={(e) => props.changed(e)}
+          changed={props.changed}
+          label={props.label}
+          fieldType={props.fieldType}
         />
       );
       break;
     case 'select':
       inputField = (
-        <select
-          id={props.id}
+        <Select
+          changed={props.changed}
+          fieldType={props.fieldType}
           name={props.name}
+          id={props.id}
           value={props.value}
-          onChange={(e) => props.changed(e)}
-        >
-          {props.config.options.map((el) => (
-            <option key={`option${el}`} value={el}>
-              {el}
-            </option>
-          ))}
-        </select>
+          config={props.config}
+        />
       );
       break;
     case 'checkbox':
       inputField = (
-        <div>
-          {props.config.options.map((el) => (
-            <>
-              <label key={`label${el}`} htmlFor={el}>
-                {el}
-              </label>
-              <input
-                key={el}
-                type="checkbox"
-                id={el}
-                name={props.name}
-                checked={props.value[el]}
-                onChange={(e) => props.changed(e, props.fieldType)}
-              />
-            </>
-          ))}
-        </div>
+        <CheckBox
+          fieldType={props.fieldType}
+          changed={props.changed}
+          value={props.value}
+          name={props.name}
+          config={props.config}
+        />
       );
       break;
     case 'radio':
@@ -75,9 +91,12 @@ const Input = (props) => {
       break;
   }
   return (
-    <div>
-      <label>{props.label}</label>
-      {inputField}
+    <div className="field">
+      {props.fieldType === 'select' ? (
+        <label className="label">{props.label}</label>
+      ) : null}
+      <div className="control">{inputField}</div>
+      {errorMessage}
     </div>
   );
 };

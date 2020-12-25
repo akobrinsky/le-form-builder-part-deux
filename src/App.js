@@ -1,6 +1,7 @@
-import logo from './logo.svg';
 import './App.css';
 import FormWrapper from './Containers/FormWrapper';
+import 'bulma/css/bulma.css';
+
 function App() {
   const formData = [
     {
@@ -9,12 +10,12 @@ function App() {
       id: '1cdeka',
       label: 'First Name',
       name: 'first-name',
-      required: false,
       placeholder: 'Your First Name',
       rules: {
-        minLength: 5,
-        maxLength: 20,
+        minLength: 3,
+        maxLength: 8,
         textOnly: true,
+        required: true,
       },
     },
     {
@@ -23,12 +24,25 @@ function App() {
       id: '2cdeka',
       label: 'Last Name',
       name: 'last-name',
-      required: true,
       placeholder: 'Your Last Name',
       rules: {
-        minLength: 8,
+        minLength: 4,
         maxLength: 13,
-        textOnly: false,
+        required: true,
+      },
+    },
+    {
+      type: 'input',
+      subtype: 'text',
+      id: '236cdeka',
+      label: 'Zip Code',
+      name: 'zip-code',
+      placeholder: 'Enter your zip',
+      rules: {
+        minLength: 5,
+        maxLength: 5,
+        required: true,
+        numOnly: true,
       },
     },
     {
@@ -37,8 +51,10 @@ function App() {
       id: '21cdeka',
       label: 'Email',
       name: 'email',
-      required: true,
       placeholder: 'Your Email Please',
+      rules: {
+        required: true,
+      },
     },
     {
       type: 'input',
@@ -49,8 +65,10 @@ function App() {
       max: 250,
       min: 0,
       step: 5,
-      required: true,
       placeholder: 'Your age',
+      rules: {
+        required: false,
+      },
     },
     {
       type: 'checkbox',
@@ -58,7 +76,9 @@ function App() {
       label: 'Say hi?',
       options: ['hi'],
       id: '17cdeka',
-      required: true,
+      rules: {
+        required: true,
+      },
     },
     {
       type: 'select',
@@ -66,8 +86,10 @@ function App() {
       label: 'Insrument',
       name: 'instrument',
       options: ['bass', 'drums', 'guitar'],
-      required: true,
       placeholder: 'what is your instrument?',
+      rules: {
+        required: true,
+      },
     },
     {
       type: 'radio',
@@ -75,7 +97,9 @@ function App() {
       label: 'Level',
       options: ['amateur', 'pro', 'jedi'],
       id: '6cdeka',
-      required: false,
+      rules: {
+        required: false,
+      },
     },
     {
       type: 'checkbox',
@@ -83,23 +107,30 @@ function App() {
       label: 'What are you allergic to?',
       options: ['dogs', 'cats', 'dust', 'mold'],
       id: '7cdeka',
-      required: true,
+      rules: {
+        required: true,
+      },
     },
     {
       type: 'textarea',
       name: 'message',
       label: 'Message',
       id: '8cdeka',
-      required: true,
       rows: 15,
+      rules: {
+        required: true,
+      },
     },
   ];
   return (
     <div className="App">
-      <FormWrapper
-        formData={formData}
-        endpoint="http://localhost:3004/formstuff"
-      />
+      <div className="container py-5">
+        <h1 className="title">Form Builder Part Deux</h1>
+        <FormWrapper
+          formData={formData}
+          endpoint="http://localhost:3004/formstuff"
+        />
+      </div>
     </div>
   );
 }

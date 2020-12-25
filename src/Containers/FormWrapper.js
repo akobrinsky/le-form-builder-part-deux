@@ -18,11 +18,10 @@ const FormWrapper = ({ formData, endpoint }) => {
         subtype,
         options,
         type,
-        required,
         name,
         rules,
       }) => {
-        const config = { required };
+        const config = {};
         // input subtype is for reg input fields, subtype is email, number or text
         if (subtype) {
           config.type = subtype;
@@ -38,7 +37,7 @@ const FormWrapper = ({ formData, endpoint }) => {
         if (!subtype) {
           // otherwise build out config for radios, select, textarea, checkbox
           if (type === 'textarea') {
-            config.rows = rows;
+            // config.rows = rows;
             config.placeholder = placeholder || label;
           } else {
             // options is an array of options for radios, select and checkbox
@@ -54,31 +53,122 @@ const FormWrapper = ({ formData, endpoint }) => {
             value[el] = false;
           });
         }
+
         formFields[name] = {
           value,
           label,
           type,
           id,
-          fieldConfig: config,
+          fieldConfig: { ...config, required: rules.required },
+          rules,
+          valid: false,
+          touched: false,
+          // errors: [],
         };
+        if (rules) {
+          formFields[name].errors = {};
+          Object.entries(formFields[name].rules).forEach(([key, val]) => {
+            formFields[name].errors[key] = '';
+          });
+        }
       }
     );
 
     setFormConfig(formFields);
   }, [formData]);
 
+  const checkValidity = (val, rules, name) => {
+    let isValid = true;
+
+    const updatedValues = { ...formConfig[name] };
+    // is required
+    if (rules.required) {
+      if (val.trim() === '') {
+        isValid = false;
+        updatedValues.errors.required = `This field is required`;
+      } else {
+        updatedValues.errors.required = '';
+      }
+    }
+    // email
+    if (name === 'email') {
+      console.log('this is an email');
+      if (
+        !/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(
+          val.trim()
+        )
+      ) {
+        isValid = false;
+        updatedValues.errors.email = 'Please enter a valid email address';
+      } else {
+        console.log('valid?');
+        updatedValues.errors.email = '';
+      }
+    }
+    // maxLength
+    if (rules.maxLength) {
+      if (val.trim().length > rules.maxLength) {
+        isValid = false;
+        updatedValues.errors.maxLength = `Too long, must be less than or equal to ${rules.maxLength} characters`;
+      } else {
+        updatedValues.errors.maxLength = '';
+      }
+    }
+    // minLength
+    if (rules.minLength && rules.minLength !== rules.maxLength) {
+      if (val.trim().length < rules.minLength) {
+        isValid = false;
+        updatedValues.errors.minLength = `Too short, must be greater than or equal to ${rules.minLength} characters`;
+      } else {
+        updatedValues.errors.minLength = '';
+      }
+    }
+    if (rules.minLength === rules.maxLength) {
+      if (val.trim().length < rules.minLength) {
+        isValid = false;
+        updatedValues.errors.equalLength = `Must be exactly ${rules.minLength} numbers`;
+      } else {
+        updatedValues.errors.equalLength = ``;
+      }
+    }
+    // should only have text... textOnly
+    if (rules.textOnly) {
+      if (!/^[a-zA-Z]*$/.test(val.trim())) {
+        isValid = false;
+        updatedValues.errors.textOnly = `Should only include letters not numbers or other characters`;
+      } else {
+        updatedValues.errors.textOnly = '';
+      }
+    }
+    // should only have numbers... numOnly
+    if (rules.numOnly) {
+      if (!/^[0-9]*$/.test(val.trim())) {
+        isValid = false;
+        updatedValues.errors.numOnly = `Should only include numbers not letters or other characters`;
+      } else {
+        updatedValues.errors.numOnly = '';
+      }
+    }
+
+    setFormConfig((formConfig[name] = updatedValues));
+    return isValid;
+  };
+
   const handleInputChange = (evt, type) => {
     const { value, name, id } = evt.target;
     const updatedForm = { ...formConfig };
     const newInfo = { ...updatedForm[name] };
+
     // checkbox type is the only one that has an object of booleans
     if (type === 'checkbox') {
       const options = { ...newInfo.value };
       options[id] = !options[id];
       newInfo.value = { ...options };
     } else {
+      newInfo.valid = checkValidity(value, newInfo.rules, name);
       newInfo.value = value;
     }
+    newInfo.touched = true;
     updatedForm[name] = newInfo;
     setFormConfig(updatedForm);
   };
@@ -102,7 +192,6 @@ const FormWrapper = ({ formData, endpoint }) => {
   };
   return (
     <div>
-      <h1>hi</h1>
       <form onSubmit={handleFormSubmit}>
         {Object.entries(formConfig).map(([key, value]) => (
           <Input
@@ -114,9 +203,15 @@ const FormWrapper = ({ formData, endpoint }) => {
             config={value.fieldConfig}
             value={value.value}
             changed={handleInputChange}
+            valid={value.valid}
+            shouldValidate={value.hasOwnProperty('rules')}
+            touched={value.touched}
+            errors={value.errors}
           />
         ))}
-        <button>submit</button>
+        <div className="control">
+          <button className="button is-link">submit</button>
+        </div>
       </form>
     </div>
   );

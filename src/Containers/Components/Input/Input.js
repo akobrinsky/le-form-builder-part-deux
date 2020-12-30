@@ -20,28 +20,15 @@ const Input = (props) => {
     }
   }
 
-  if (props.valid && props.touched) {
-    inputClasses.push('is-success');
-  }
+  if (props.valid && props.touched) inputClasses.push('is-success');
 
   switch (props.fieldType) {
     case 'input':
-      inputField = (
-        <InputField
-          inputClasses={inputClasses}
-          name={props.name}
-          config={props.config}
-          value={props.value}
-          changed={props.changed}
-          label={props.label}
-          fieldType={props.fieldType}
-        />
-      );
-      break;
     case 'textarea':
       inputField = (
         <InputField
           inputClasses={inputClasses}
+          id={props.id}
           name={props.name}
           config={props.config}
           value={props.value}
@@ -68,6 +55,7 @@ const Input = (props) => {
         <CheckBox
           fieldType={props.fieldType}
           changed={props.changed}
+          id={props.id}
           value={props.value}
           name={props.name}
           config={props.config}
@@ -80,6 +68,7 @@ const Input = (props) => {
           options={props.config.options}
           changed={props.changed}
           name={props.name}
+          id={props.id}
           type="radio"
           value={props.value}
         />
@@ -90,9 +79,10 @@ const Input = (props) => {
   }
   return (
     <div className="field">
-      {props.fieldType === 'select' && (
-        <label className="label">{props.label}</label>
-      )}
+      {props.fieldType === 'select' ||
+        (props.fieldType === 'checkbox' && (
+          <label className="label">{props.label}</label>
+        ))}
       <div className="control">{inputField}</div>
       {errorMessage}
     </div>

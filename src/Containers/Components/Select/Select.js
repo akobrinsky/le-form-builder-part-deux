@@ -10,7 +10,7 @@ const Select = (props) => {
         onChange={(e) => props.changed(e)}
       >
         {props.config.options.map((el, idx) => (
-          <option key={`option${idx}`} value={el}>
+          <option key={`${props.id}${idx}`} value={el}>
             {el}
           </option>
         ))}
